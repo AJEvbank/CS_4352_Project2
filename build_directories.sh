@@ -1,0 +1,20 @@
+#! bin/sh
+
+mkdir testdir
+cd testdir
+touch test1
+touch test2
+mkdir dir1
+mkdir dir3
+cd dir1
+touch test3
+touch test4
+mkdir dir2
+cd dir2
+touch test5
+touch test6
+cd ..
+cd ..
+cd dir3
+touch test7
+touch test8
