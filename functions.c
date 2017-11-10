@@ -86,12 +86,51 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
 {
 
   /* Open the directory */
+  DIR * directory = opendir(current_dir);
+  struct dirent * dir_entry;
+  struct stat buf;
+  char tempSelf[] = ".";
+  char tempParent[] = "..";
+  char tempSlash[] = "/";
+
+  if (directory != NULL)
+  {
 
   /* Look at each entry in the directory. */
         /* If the entry is a file, run test and execute. */
         /* If the entry is a directory, run test and, if necessary, push it onto the directory stack. */
   /* Run the recursive call on each entry in the directory stack. */
-
-
+    closedir(directory);
+  }
+  else
+  {
+    printf("Cannot open directory: %s \n",current_dir);
+    exit(13);
+  }
   return;
+}
+
+struct stackNode * push(char * dir_name, struct stackNode * base)
+{
+  struct stackNode * temp = (struct stackNode *)malloc(sizeof(struct stackNode));
+  temp->dir_name = (char *)malloc(sizeof(char) * 256);
+  strcpy(temp->dir_name,dir_name);
+  temp->next = base;
+  return temp;
+}
+
+struct stackNode * pop(struct stackNode * base)
+{
+  if (base == NULL)
+  {
+    return NULL;
+  }
+  else
+  {
+    struct stackNode * temp = base;
+    base = base->next;
+    free(temp->dir_name);
+    free(temp);
+    return base;
+  }
 }

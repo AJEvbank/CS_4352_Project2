@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include "getopt.h"
 
 struct instruction_status
@@ -29,7 +30,7 @@ struct instruction_status
 
 struct stackNode
 {
-  DIR * dir_name;
+  char * dir_name;
   struct stackNode * next;
 };
 
@@ -42,3 +43,7 @@ void display_instruction_status(struct instruction_status * instructions);
 void destroy_inst(struct instruction_status * inst);
 
 void scan_directory(struct instruction_status * inst, char * current_dir);
+
+struct stackNode * push(char * dir_name, struct stackNode * base);
+
+struct stackNode * pop(struct stackNode * base);
