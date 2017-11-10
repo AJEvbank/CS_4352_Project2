@@ -81,3 +81,17 @@ void destroy_inst(struct instruction_status * inst)
   free(inst);
   return;
 }
+
+void scan_directory(struct instruction_status * inst, char * current_dir)
+{
+
+  /* Open the directory */
+
+  /* Look at each entry in the directory. */
+        /* If the entry is a file, run test and execute. */
+        /* If the entry is a directory, run test and, if necessary, push it onto the directory stack. */
+  /* Run the recursive call on each entry in the directory stack. */
+
+
+  return;
+}

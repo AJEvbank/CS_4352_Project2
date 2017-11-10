@@ -27,6 +27,12 @@ struct instruction_status
   int del;
 };
 
+struct stackNode
+{
+  DIR * dir_name;
+  struct stackNode * next;
+};
+
 void getCommandArgs(int argc, char ** argv, struct instruction_status * instructions);
 
 struct instruction_status * initialize_inst();
@@ -34,3 +40,5 @@ struct instruction_status * initialize_inst();
 void display_instruction_status(struct instruction_status * instructions);
 
 void destroy_inst(struct instruction_status * inst);
+
+void scan_directory(struct instruction_status * inst, char * current_dir);
