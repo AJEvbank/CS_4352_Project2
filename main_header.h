@@ -8,22 +8,26 @@
 #include <stdint.h>
 #include <string.h>
 #include "getopt.h"
+#include "math.h"
 
 struct instruction_status
 {
   bool help;
 
-  char * location;
   bool where;
+  char * location;
 
-  char * target;
   bool name;
+  char * target;
 
-  int minutes;
   bool mmin;
+  bool less_than;
+  bool greater_than;
+  bool equal_to;
+  int minutes;
 
-  ino_t inode;
   bool inum;
+  ino_t inode;
 
   int del;
 };
@@ -32,6 +36,12 @@ struct stackNode
 {
   char * dir_name;
   struct stackNode * next;
+};
+
+enum action
+{
+  EXIT_TARGET_FOUND,
+  CONTINUE_SCAN
 };
 
 void getCommandArgs(int argc, char ** argv, struct instruction_status * instructions);

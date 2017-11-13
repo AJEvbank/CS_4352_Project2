@@ -2,7 +2,7 @@
 
 void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
 {
-  int ch,opt_index;
+  int ch,opt_index,mins;
 
   if (argc >= 2)
   {
@@ -13,12 +13,19 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     }
     else
     {
-      char * buffer = (char *)malloc(sizeof(char) * 1024);
-      getcwd(buffer,sizeof(char) * 2048);
+      char * buffer = NULL;
+      buffer = getcwd(buffer,sizeof(char) * 1024);
       inst->location = buffer;
     }
   }
-  else { inst->help = true; return; }
+  else
+  {
+    inst->help = true;
+    char * buffer = NULL;
+    buffer = getcwd(buffer,sizeof(char) * 1024);
+    inst->location = buffer;
+    return;
+  }
 
   static struct option OPTS[] =
   {
@@ -42,8 +49,20 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 break;
 
       case 'm':
-                inst->minutes = atoi(optarg);
                 inst->mmin = true;
+                inst->minutes = fabs(atoi(optarg));
+                if (optarg[0] == '-')
+                {
+                  inst->less_than = true;
+                }
+                else if (optarg[0] == '+')
+                {
+                  inst->greater_than = true;
+                }
+                else
+                {
+                  inst->equal_to = true;
+                }
                 break;
 
       case 'i':
@@ -58,7 +77,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     }
   }
   return;
-}\
+}
 
 struct instruction_status * initialize_inst()
 {
@@ -70,6 +89,9 @@ struct instruction_status * initialize_inst()
   rtrn->where = false;
   rtrn->name = false;
   rtrn->mmin = false;
+  rtrn->less_than = false;
+  rtrn->greater_than = false;
+  rtrn->equal_to = false;
   rtrn->help = false;
   rtrn->del = false;
   return rtrn;
@@ -90,6 +112,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   struct dirent * dir_entry;
   struct stat buf;
   char * temp = (char *)malloc(sizeof(char) * 256);
+  // char * pass = NULL;
   char tempSelf[] = ".";
   char tempParent[] = "..";
   char tempSlash[] = "/";
@@ -101,14 +124,21 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   /* Look at each entry in the directory. */
     while((dir_entry = readdir(directory)) != NULL)
     {
-      if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0)
+      if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && (dir_entry->d_name)[0] != '.')
       {
-        temp[0] = '\0';
-        temp = strcat(temp,tempSelf);
-        temp = strcat(temp,tempSlash);
-        temp = strcat(temp,current_dir);
-        temp = strcat(temp,tempSlash);
-        temp = strcat(temp,dir_entry->d_name);
+        if (!inst->help)
+        {
+          temp[0] = '\0';
+          temp = strcat(temp,tempSelf);
+          temp = strcat(temp,tempSlash);
+          temp = strcat(temp,current_dir);
+          temp = strcat(temp,tempSlash);
+          temp = strcat(temp,dir_entry->d_name);
+        }
+        else
+        {
+          temp = dir_entry->d_name;
+        }
         if(stat(temp,&buf) < 0)
         {
           printf("Could not get attributes for %s. \n",temp);
@@ -124,6 +154,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
           else if (S_ISDIR(buf.st_mode))
           {
             printf("%s is a directory! \n",temp);
+            // if (!inst->help) { pass = &temp[2]; } else { pass = temp; }
             dirStack = push(&temp[2],dirStack);
           }
           else
@@ -145,7 +176,9 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   else
   {
     printf("Cannot open directory: %s \n",current_dir);
-    exit(13);
+    free(temp);
+    return;
+    //exit(13);
   }
   free(temp);
   return;

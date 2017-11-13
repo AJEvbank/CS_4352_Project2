@@ -26,6 +26,7 @@ void display_instruction_status(struct instruction_status * inst)
     if (inst->mmin)
     {
       printf("minutes = %d \n",inst->minutes);
+      printf("lt = %d, gt = %d, et = %d \n",inst->less_than,inst->greater_than,inst->equal_to);
     }
     else
     {
@@ -53,6 +54,7 @@ void display_instruction_status(struct instruction_status * inst)
   else
   {
     printf("program in help mode \n");
+    printf("location = %s \n",inst->location);
   }
   printf("\n\n");
   return;
