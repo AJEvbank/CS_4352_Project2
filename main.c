@@ -7,7 +7,7 @@ int main(int argc, char ** argv)
   getCommandArgs(argc,argv,instructions);
   display_instruction_status(instructions);
 
-
+  scan_directory(instructions, instructions->location);
 
 
 

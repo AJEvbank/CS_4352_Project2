@@ -2,6 +2,7 @@
 
 void display_instruction_status(struct instruction_status * inst)
 {
+  printf("\n\n");
   if (!inst->help)
   {
     if (inst->where)
@@ -53,5 +54,6 @@ void display_instruction_status(struct instruction_status * inst)
   {
     printf("program in help mode \n");
   }
+  printf("\n\n");
   return;
 }

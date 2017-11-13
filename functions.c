@@ -89,6 +89,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   DIR * directory = opendir(current_dir);
   struct dirent * dir_entry;
   struct stat buf;
+  char * temp;
   char tempSelf[] = ".";
   char tempParent[] = "..";
   char tempSlash[] = "/";
@@ -97,8 +98,28 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   {
 
   /* Look at each entry in the directory. */
+    while((dir_entry = readdir(directory)) != NULL)
+    {
+      temp = dir_entry->d_name;
+      if(strcmp(temp,tempSelf) != 0 && strcmp(temp,tempParent) != 0)
+      {
+        stat(temp,&buf);
         /* If the entry is a file, run test and execute. */
+        if (S_ISREG(buf.st_mode))
+        {
+          printf("%s is a file! \n",temp);
+        }
         /* If the entry is a directory, run test and, if necessary, push it onto the directory stack. */
+        else if (S_ISDIR(buf.st_mode))
+        {
+          printf("%s is a directory! \n",temp);
+        }
+        else
+        {
+          printf("%s is not anything important \n",temp);
+        }
+      }
+    }
   /* Run the recursive call on each entry in the directory stack. */
     closedir(directory);
   }
