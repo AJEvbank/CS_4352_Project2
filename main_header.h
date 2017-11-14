@@ -11,9 +11,14 @@
 #include "math.h"
 #include "time.h"
 
+#define SHOW_OUTPUT 0
+#define SHOW_INODES 0
+#define SHOW_INODES2 0
+#define SHOW_MINS 0
+
 struct instruction_status
 {
-  bool help;
+  bool noArgs;
 
   bool cwd;
   bool given;
@@ -32,6 +37,12 @@ struct instruction_status
   ino_t inode;
 
   int del;
+
+  bool exec;
+  bool cat;
+  bool rm;
+  bool mv;
+  char * destination;
 };
 
 struct stackNode

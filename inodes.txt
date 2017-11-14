@@ -1,0 +1,40 @@
+
+
+program in help mode 
+location =  
+
+
+. 
+./dir1
+./dir1/dir2
+file ./dir1/dir2/foo inode = 7599824371434297 
+./dir1/dir2/foo 
+file ./dir1/dir2/test5 inode = 562949953666499 
+./dir1/dir2/test5 
+file ./dir1/dir2/test6 inode = 281474976955845 
+./dir1/dir2/test6 
+file ./dir1/foo inode = 32369622321971997 
+./dir1/foo 
+file ./dir1/test3 inode = 562949953666496 
+./dir1/test3 
+file ./dir1/test4 inode = 281474976955842 
+./dir1/test4 
+./dir3
+file ./dir3/foo inode = 5066549581038395 
+./dir3/foo 
+file ./dir3/test7 inode = 281474976955847 
+./dir3/test7 
+file ./dir3/test8 inode = 562949953666502 
+./dir3/test8 
+file ./find inode = 11821949022093969 
+./find 
+file ./foo inode = 1688849860510524 
+./foo 
+file ./inodes.txt inode = 1970324837221181 
+./inodes.txt 
+file ./test1 inode = 562949953666492 
+./test1 
+file ./test2 inode = 281474976955838 
+./test2 
+
+

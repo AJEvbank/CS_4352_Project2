@@ -3,7 +3,7 @@
 void display_instruction_status(struct instruction_status * inst)
 {
   printf("\n\n");
-  if (!inst->help)
+  if (!inst->noArgs)
   {
     if (inst->given)
     {
@@ -53,7 +53,7 @@ void display_instruction_status(struct instruction_status * inst)
   }
   else
   {
-    printf("program in help mode \n");
+    printf("program in noArgs mode \n");
     printf("location = %s \n",inst->location);
   }
   printf("\n\n");
