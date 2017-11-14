@@ -50,10 +50,6 @@ void destroy_inst(struct instruction_status * inst);
 
 void scan_directory(struct instruction_status * inst, char * current_dir);
 
-struct stackNode * push(char * dir_name, struct stackNode * base);
-
-struct stackNode * pop(struct stackNode * base);
-
 void execute_instructions(struct instruction_status * inst, struct stat buf, char * temp);
 
 bool minutes_check(struct instruction_status * inst, time_t mod);
