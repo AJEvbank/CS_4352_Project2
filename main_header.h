@@ -9,12 +9,14 @@
 #include <string.h>
 #include "getopt.h"
 #include "math.h"
+#include "time.h"
 
 struct instruction_status
 {
   bool help;
 
-  bool where;
+  bool cwd;
+  bool given;
   char * location;
 
   bool name;
@@ -38,12 +40,6 @@ struct stackNode
   struct stackNode * next;
 };
 
-enum action
-{
-  EXIT_TARGET_FOUND,
-  CONTINUE_SCAN
-};
-
 void getCommandArgs(int argc, char ** argv, struct instruction_status * instructions);
 
 struct instruction_status * initialize_inst();
@@ -57,3 +53,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir);
 struct stackNode * push(char * dir_name, struct stackNode * base);
 
 struct stackNode * pop(struct stackNode * base);
+
+void execute_instructions(struct instruction_status * inst, struct stat buf, char * temp);
+
+bool minutes_check(struct instruction_status * inst, time_t mod);

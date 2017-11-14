@@ -5,13 +5,13 @@ void display_instruction_status(struct instruction_status * inst)
   printf("\n\n");
   if (!inst->help)
   {
-    if (inst->where)
+    if (inst->given)
     {
       printf("location = %s \n",inst->location);
     }
-    else
+    else if (inst->cwd)
     {
-      printf("cwd = %s \n",inst->location);
+      printf("cwd = %s, length = %lu \n",inst->location,strlen(inst->location));
     }
 
     if(inst->name)

@@ -1,0 +1,58 @@
+
+
+cwd = , length = 0 
+no filename given 
+no minutes given 
+no inode number given 
+do not delete the target 
+
+
+./dir1 is a directory! 
+./dir3 is a directory! 
+./find is a file! 
+./inodes.txt is a file! 
+./test1 is a file! 
+./test2 is a file! 
+./dir3/test7 is a file! 
+./dir3/test8 is a file! 
+./dir1/dir2 is a directory! 
+./dir1/test3 is a file! 
+./dir1/test4 is a file! 
+./dir1/dir2/test5 is a file! 
+./dir1/dir2/test6 is a file! 
+
+
+
+
+cwd = , length = 0 
+no filename given 
+no minutes given 
+no inode number given 
+do not delete the target 
+
+
+./dir1 is a directory! 
+./dir3 is a directory! 
+./find is a file! 
+inode of find = 15762598696043292 
+./inodes.txt is a file! 
+inode of inodes.txt = 31525197391840029 
+./test1 is a file! 
+inode of test1 = 562949953666492 
+./test2 is a file! 
+inode of test2 = 281474976955838 
+./dir3/test7 is a file! 
+inode of dir3/test7 = 281474976955847 
+./dir3/test8 is a file! 
+inode of dir3/test8 = 562949953666502 
+./dir1/dir2 is a directory! 
+./dir1/test3 is a file! 
+inode of dir1/test3 = 562949953666496 
+./dir1/test4 is a file! 
+inode of dir1/test4 = 281474976955842 
+./dir1/dir2/test5 is a file! 
+inode of dir1/dir2/test5 = 562949953666499 
+./dir1/dir2/test6 is a file! 
+inode of dir1/dir2/test6 = 281474976955845 
+
+

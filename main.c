@@ -9,8 +9,7 @@ int main(int argc, char ** argv)
 
   scan_directory(instructions, instructions->location);
 
-
-
+  
   printf("\n\n");
   destroy_inst(instructions);
   return 0;

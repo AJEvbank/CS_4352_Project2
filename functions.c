@@ -9,21 +9,18 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     if (argv[1][0] != '-')
     {
       inst->location = argv[1];
-      inst->where = true;
+      inst->given = true;
     }
     else
     {
-      char * buffer = NULL;
-      buffer = getcwd(buffer,sizeof(char) * 1024);
-      inst->location = buffer;
+      inst->cwd = true;
+      inst->location = "";
     }
   }
   else
   {
-    inst->help = true;
-    char * buffer = NULL;
-    buffer = getcwd(buffer,sizeof(char) * 1024);
-    inst->location = buffer;
+    inst->cwd = true;
+    inst->location = "";
     return;
   }
 
@@ -66,7 +63,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 break;
 
       case 'i':
-                inst->inode = atoi(optarg);
+                inst->inode = strtoull(optarg,NULL,10);
                 inst->inum = true;
                 break;
       case 'd':
@@ -86,7 +83,8 @@ struct instruction_status * initialize_inst()
   rtrn->target = NULL;
   rtrn->minutes = 0;
   rtrn->inode = 0;
-  rtrn->where = false;
+  rtrn->cwd = false;
+  rtrn->given = false;
   rtrn->name = false;
   rtrn->mmin = false;
   rtrn->less_than = false;
@@ -99,20 +97,27 @@ struct instruction_status * initialize_inst()
 
 void destroy_inst(struct instruction_status * inst)
 {
-  if (inst->where == false) free(inst->location);
   free(inst);
   return;
 }
 
 void scan_directory(struct instruction_status * inst, char * current_dir)
 {
-
+  DIR * directory = NULL;
   /* Open the directory */
-  DIR * directory = opendir(current_dir);
+  if (inst->cwd == true && strlen(current_dir) == 0)
+  {
+    directory = opendir(".");
+  }
+  else
+  {
+    directory = opendir(current_dir);
+  }
+
   struct dirent * dir_entry;
   struct stat buf;
   char * temp = (char *)malloc(sizeof(char) * 256);
-  // char * pass = NULL;
+  char * pass = NULL;
   char tempSelf[] = ".";
   char tempParent[] = "..";
   char tempSlash[] = "/";
@@ -126,7 +131,14 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
     {
       if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && (dir_entry->d_name)[0] != '.')
       {
-        if (!inst->help)
+        if (inst->cwd == true && strlen(current_dir) == 0)
+        {
+          temp[0] = '\0';
+          temp = strcat(temp,tempSelf);
+          temp = strcat(temp,tempSlash);
+          temp = strcat(temp,dir_entry->d_name);
+        }
+        else
         {
           temp[0] = '\0';
           temp = strcat(temp,tempSelf);
@@ -134,10 +146,6 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
           temp = strcat(temp,current_dir);
           temp = strcat(temp,tempSlash);
           temp = strcat(temp,dir_entry->d_name);
-        }
-        else
-        {
-          temp = dir_entry->d_name;
         }
         if(stat(temp,&buf) < 0)
         {
@@ -148,13 +156,14 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
           /* If the entry is a file, run test and execute. */
           if (S_ISREG(buf.st_mode))
           {
-            printf("%s is a file! \n",temp);
+            //printf("%s is a file! \n",temp);
+            execute_instructions(inst, buf, &temp[2]);
           }
           /* If the entry is a directory, run test and, if necessary, push it onto the directory stack. */
           else if (S_ISDIR(buf.st_mode))
           {
-            printf("%s is a directory! \n",temp);
-            // if (!inst->help) { pass = &temp[2]; } else { pass = temp; }
+            //printf("%s is a directory! \n",temp);
+            pass = &temp[2];
             dirStack = push(&temp[2],dirStack);
           }
           else
@@ -167,7 +176,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   /* Run the recursive call on each entry in the directory stack. */
     while (dirStack != NULL)
     {
-      printf("%s \n",dirStack->dir_name);
+      //printf("%s \n",dirStack->dir_name);
       scan_directory(inst,dirStack->dir_name);
       dirStack = pop(dirStack);
     }
@@ -207,4 +216,47 @@ struct stackNode * pop(struct stackNode * base)
     free(temp);
     return base;
   }
+}
+
+void execute_instructions(struct instruction_status * inst, struct stat buf, char * tempat2)
+{
+  //printf("inode of %s = %lu \n",tempat2,buf.st_ino);
+  bool isTarget = false;
+  if (inst->name == true)
+  {
+    if ((strcmp(inst->target,tempat2) == 0)) { isTarget = true; } else { isTarget = false; }
+  }
+  if (inst->mmin == true) { isTarget = minutes_check(inst, buf.st_mtime); }
+  if (inst->inum == true)
+  {
+    if(inst->inode == buf.st_ino) { isTarget = true; } else { isTarget = false; }
+  }
+  if (isTarget)
+  {
+    printf("%s \n",tempat2);
+    if (inst->del == true)
+    {
+      printf("delete %s \n",tempat2);
+    }
+  }
+  return;
+}
+
+bool minutes_check(struct instruction_status * inst, time_t mod)
+{
+  time_t min = (time(NULL) - mod)/60;
+  bool rtrn = false;
+  if(inst->less_than == true && min < inst->minutes)
+  {
+    rtrn = true;
+  }
+  else if (inst->greater_than == true && min > inst->minutes)
+  {
+    rtrn = true;
+  }
+  else if (inst->equal_to == true && min == inst->minutes)
+  {
+    rtrn = true;
+  }
+  return rtrn;
 }
