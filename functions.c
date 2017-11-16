@@ -75,18 +75,26 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 inst->exec = true;
                 if (strcmp(optarg,"cat") == 0)
                 {
-                  inst->cat == true;
+                  if (inst->name == true)
+                  {
+                    inst->cat = true;
+                  }
+                  else
+                  {
+                    printf("name argument required for cat \n");
+                  }
                 }
                 else if (strcmp(optarg,"rm") == 0)
                 {
-                  inst->rm == true;
+                  inst->rm = true;
                 }
                 else if (strcmp(optarg,"mv") == 0)
                 {
-                  inst->mv == true;
-                  if (optind + 1 < argc)
+                  inst->mv = true;
+                  printf("optind = %d, argc = %d \n",optind,argc);
+                  if (optind < argc)
                   {
-                    inst->destination = argv[optind + 1];
+                    inst->destination = argv[optind];
                   }
                   else
                   {
@@ -224,8 +232,10 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
 {
   bool isTarget = false;
   char * file_nombre = strrchr(temp,'/');
+
   if (SHOW_OUTPUT) printf("checking %s \n",file_nombre);
   if (SHOW_INODES) printf("file %s inode = %lu \n",temp,buf.st_ino);
+
   if (inst->noArgs == true)
   {
     printf("%s \n",temp);
@@ -243,11 +253,14 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
   }
   if (isTarget)
   {
-    printf("%s \n",temp);
     if (inst->del == true)
     {
       if (SHOW_OUTPUT) printf("delete %s \n",temp);
       if(remove(temp) != 0){ printf("remove failed \n"); }
+    }
+    else
+    {
+      printf("%s \n",temp);
     }
   }
   return;
@@ -271,4 +284,51 @@ bool minutes_check(struct instruction_status * inst, time_t mod)
     rtrn = true;
   }
   return rtrn;
+}
+
+bool sys_exec(struct instruction_status * inst)
+{
+  if (inst->exec == true)
+  {
+    if(inst->cat == true)
+    {
+      //printf("cat %s \n",inst->target);
+      char * combuf[3];
+      combuf[0] = "cat";
+      char * tar = (char *)malloc(sizeof(char) * 256);
+      tar = strcpy(tar,inst->location);
+      if (inst->given == true)
+      {
+        tar = strcat(tar,"/");
+      }
+      tar = strcat(tar,inst->target);
+      combuf[1] = tar;
+      combuf[2] = (char *)0;
+      //int i;
+      //for (i = 0; i < 3; i++) { printf("combuf[%d] = %s \n",i,combuf[i]); }
+      if (execv("/bin/cat",combuf) == -1)
+      {
+        printf("cat command failed \n");
+      }
+    }
+    else if (inst->mv == true)
+    {
+      printf("mv %s to %s \n",inst->target,inst->destination);
+      return true;
+    }
+    else if (inst->rm == true)
+    {
+      printf("rm %s \n",inst->target);
+      
+    }
+    else
+    {
+      return false;
+    }
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }

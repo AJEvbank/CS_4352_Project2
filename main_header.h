@@ -43,6 +43,7 @@ struct instruction_status
   bool rm;
   bool mv;
   char * destination;
+
 };
 
 struct stackNode
@@ -50,6 +51,8 @@ struct stackNode
   char * dir_name;
   struct stackNode * next;
 };
+
+extern char **environ;
 
 void getCommandArgs(int argc, char ** argv, struct instruction_status * instructions);
 
@@ -64,3 +67,5 @@ void scan_directory(struct instruction_status * inst, char * current_dir);
 void execute_instructions(struct instruction_status * inst, struct stat buf, char * temp);
 
 bool minutes_check(struct instruction_status * inst, time_t mod);
+
+bool sys_exec(struct instruction_status * inst);

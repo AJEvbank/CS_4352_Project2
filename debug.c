@@ -50,6 +50,25 @@ void display_instruction_status(struct instruction_status * inst)
     {
       printf("do not delete the target \n");
     }
+    if (inst->exec == true)
+    {
+      if (inst->cat == true)
+      {
+        printf("cat the target \n");
+      }
+      else if (inst->rm)
+      {
+        printf("rm the target \n");
+      }
+      else if (inst->mv == true)
+      {
+        printf("mv the target to %s \n",inst->destination);
+      }
+      else
+      {
+        printf("exec is true without any instructions \n");
+      }
+    }
   }
   else
   {
