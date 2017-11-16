@@ -310,16 +310,56 @@ bool sys_exec(struct instruction_status * inst)
       {
         printf("cat command failed \n");
       }
+      return true;
     }
     else if (inst->mv == true)
     {
-      printf("mv %s to %s \n",inst->target,inst->destination);
+      //printf("mv %s to %s \n",inst->target,inst->destination);
+
+      char * combuf[4];
+      combuf[0] = "mv";
+      char * src = (char *)malloc(sizeof(char) * 256);
+      char * dest = (char *)malloc(sizeof(char) * 1024);
+      dest = strcpy(dest,inst->destination);
+      src = strcpy(src,inst->location);
+      if (inst->given == true)
+      {
+        src = strcat(src,"/");
+      }
+      src = strcat(src,inst->target);
+      combuf[1] = src;
+      combuf[2] = dest;
+      combuf[3] = (char *)0;
+      // int i;
+      // for (i = 0; i < 3; i++) { printf("combuf[%d] = %s \n",i,combuf[i]); }
+      if (execv("/bin/mv",combuf) == -1)
+      {
+        printf("mv command failed \n");
+      }
       return true;
     }
     else if (inst->rm == true)
     {
-      printf("rm %s \n",inst->target);
-      
+      //printf("rm %s \n",inst->target);
+
+      char * combuf[3];
+      combuf[0] = "rm";
+      char * tar = (char *)malloc(sizeof(char) * 256);
+      tar = strcpy(tar,inst->location);
+      if (inst->given == true)
+      {
+        tar = strcat(tar,"/");
+      }
+      tar = strcat(tar,inst->target);
+      combuf[1] = tar;
+      combuf[2] = (char *)0;
+      //int i;
+      //for (i = 0; i < 3; i++) { printf("combuf[%d] = %s \n",i,combuf[i]); }
+      if (execv("/bin/rm",combuf) == -1)
+      {
+        printf("rm command failed \n");
+      }
+      return true;
     }
     else
     {
