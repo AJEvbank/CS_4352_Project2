@@ -170,7 +170,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   /* Look at each entry in the directory. */
     while((dir_entry = readdir(directory)) != NULL)
     {
-      if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0)
+      if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && strcmp(dir_entry->d_name,"find") != 0)
       {
         if (inst->cwd == true && strlen(current_dir) == 0)
         {
@@ -255,24 +255,41 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
   {
     if (inst->exec == true)
     {
+      char * arg0 = (char *)malloc(sizeof(char) * 128);
+      char **arg1 = (char **)malloc(sizeof(char *) * 32);
       if(inst->cat == true)
       {
         printf("cat %s \n",temp);
+        arg0 = strcpy(arg0,"/bin/cat");
+        arg1[0] = "cat";
+        arg1[1] = temp;
+        arg1[2] = (char *)0;
       }
       else if(inst->rm == true)
       {
         printf("rm %s \n",temp);
         inst->del = false;
+        arg0 = strcpy(arg0,"/bin/rm");
+        arg1[0] = "rm";
+        arg1[1] = temp;
+        arg1[2] = (char *)0;
       }
       else if(inst->mv == true)
       {
         printf("mv %s to %s \n",temp,inst->destination);
+        arg0 = "/bin/mv";
+        arg1[0] = "mv";
+        arg1[1] = temp;
+        arg1[2] = inst->destination;
+        arg1[3] = (char *)0;
       }
-
+      printf("arg0 = %s \n",arg0);
+      int i = 0;
+      while (arg1[i] != (char *)0) { printf("arg1[%d] = %s \n",i,arg1[i]); i++; }
     }
     else if (inst->del == true)
     {
-      if(remove(temp) != 0){ printf("remove failed \n"); }
+      if(remove(temp) != 0){ printf("remove failed on %s \n",temp); }
     }
     else
     {
