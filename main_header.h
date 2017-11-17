@@ -68,4 +68,4 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
 
 bool minutes_check(struct instruction_status * inst, time_t mod);
 
-bool sys_exec(struct instruction_status * inst);
+char * com_string(struct instruction_status * inst);

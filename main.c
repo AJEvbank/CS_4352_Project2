@@ -7,10 +7,9 @@ int main(int argc, char ** argv)
   getCommandArgs(argc,argv,instructions);
   display_instruction_status(instructions);
 
-  if (sys_exec(instructions) == false)
-  {
-    scan_directory(instructions, instructions->location);
-  }
+
+  scan_directory(instructions, instructions->location);
+  
 
 
   printf("\n\n");
