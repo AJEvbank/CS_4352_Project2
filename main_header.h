@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>

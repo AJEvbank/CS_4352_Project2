@@ -259,7 +259,7 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
       char **arg1 = (char **)malloc(sizeof(char *) * 32);
       if(inst->cat == true)
       {
-        printf("cat %s \n",temp);
+        //printf("cat %s \n",temp);
         arg0 = strcpy(arg0,"/bin/cat");
         arg1[0] = "cat";
         arg1[1] = temp;
@@ -267,7 +267,7 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
       }
       else if(inst->rm == true)
       {
-        printf("rm %s \n",temp);
+        //printf("rm %s \n",temp);
         inst->del = false;
         arg0 = strcpy(arg0,"/bin/rm");
         arg1[0] = "rm";
@@ -276,16 +276,28 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
       }
       else if(inst->mv == true)
       {
-        printf("mv %s to %s \n",temp,inst->destination);
+        //printf("mv %s to %s \n",temp,inst->destination);
         arg0 = "/bin/mv";
         arg1[0] = "mv";
         arg1[1] = temp;
         arg1[2] = inst->destination;
         arg1[3] = (char *)0;
       }
-      printf("arg0 = %s \n",arg0);
-      int i = 0;
-      while (arg1[i] != (char *)0) { printf("arg1[%d] = %s \n",i,arg1[i]); i++; }
+      // printf("arg0 = %s \n",arg0);
+      // int i = 0;
+      // while (arg1[i] != (char *)0) { printf("arg1[%d] = %s \n",i,arg1[i]); i++; }
+      if (fork() == 0)
+      {
+        if(execv(arg0,arg1) == -1)
+        {
+          printf("%s failed on %s \n",arg0,temp);
+          return;
+        }
+      }
+      else
+      {
+        return;
+      }
     }
     else if (inst->del == true)
     {
