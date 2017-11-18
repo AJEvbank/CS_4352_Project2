@@ -4,7 +4,21 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
 {
   int ch,opt_index;
 
-  if (argc >= 2)
+  if (argc == 1)
+  {
+    inst->cwd = true;
+    inst->noArgs = true;
+    inst->location = "";
+    return;
+  }
+  else if(argc == 2)
+  {
+    inst->noArgs = true;
+    inst->location = argv[1];
+    inst->given = true;
+    return;
+  }
+  else
   {
     if (argv[1][0] != '-')
     {
@@ -16,13 +30,6 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
       inst->cwd = true;
       inst->location = "";
     }
-  }
-  else
-  {
-    inst->cwd = true;
-    inst->noArgs = true;
-    inst->location = "";
-    return;
   }
 
   static struct option OPTS[] =
@@ -91,7 +98,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 else if (strcmp(optarg,"mv") == 0)
                 {
                   inst->mv = true;
-                  printf("optind = %d, argc = %d \n",optind,argc);
+                  //printf("optind = %d, argc = %d \n",optind,argc);
                   if (optind < argc)
                   {
                     inst->destination = argv[optind];
@@ -130,6 +137,7 @@ struct instruction_status * initialize_inst()
   rtrn->greater_than = false;
   rtrn->equal_to = false;
   rtrn->noArgs = false;
+  rtrn->foundOneTarget = false;
   rtrn->del = false;
   rtrn->exec = false;
   rtrn->cat = false;
@@ -253,21 +261,23 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
   }
   if (isTarget)
   {
+    inst->foundOneTarget = true;
     if (inst->exec == true)
     {
       char * arg0 = (char *)malloc(sizeof(char) * 128);
       char **arg1 = (char **)malloc(sizeof(char *) * 32);
       if(inst->cat == true)
       {
-        //printf("cat %s \n",temp);
-        arg0 = strcpy(arg0,"/bin/cat");
-        arg1[0] = "cat";
-        arg1[1] = temp;
-        arg1[2] = (char *)0;
+        char ch;
+        FILE * fd = fopen(temp,"r");
+        if (fd == NULL) { printf("Cannot open %s. \n",temp); }
+        ch = fgetc(fd);
+        while (ch != EOF) { printf("%c",ch); ch = fgetc(fd); }
+        fclose(fd);
+        return;
       }
       else if(inst->rm == true)
       {
-        //printf("rm %s \n",temp);
         inst->del = false;
         arg0 = strcpy(arg0,"/bin/rm");
         arg1[0] = "rm";
@@ -276,16 +286,12 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
       }
       else if(inst->mv == true)
       {
-        //printf("mv %s to %s \n",temp,inst->destination);
         arg0 = "/bin/mv";
         arg1[0] = "mv";
         arg1[1] = temp;
         arg1[2] = inst->destination;
         arg1[3] = (char *)0;
       }
-      // printf("arg0 = %s \n",arg0);
-      // int i = 0;
-      // while (arg1[i] != (char *)0) { printf("arg1[%d] = %s \n",i,arg1[i]); i++; }
       if (fork() == 0)
       {
         if(execv(arg0,arg1) == -1)

@@ -6,14 +6,16 @@ int main(int argc, char ** argv)
   struct instruction_status * instructions = initialize_inst();
 
   getCommandArgs(argc,argv,instructions);
-  display_instruction_status(instructions);
+  //display_instruction_status(instructions);
 
 
   scan_directory(instructions, instructions->location);
-
+  if(instructions->noArgs == false && instructions->foundOneTarget == false)
+  {
+    printf("%s: no such file \n",instructions->target);
+  }
 
   waitpid(-1,&wstatus,0);
-  printf("\n\n");
   destroy_inst(instructions);
   return 0;
 }

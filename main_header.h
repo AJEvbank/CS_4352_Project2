@@ -20,6 +20,7 @@
 struct instruction_status
 {
   bool noArgs;
+  bool foundOneTarget;
 
   bool cwd;
   bool given;
