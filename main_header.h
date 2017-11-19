@@ -25,6 +25,7 @@ struct instruction_status
   bool cwd;
   bool given;
   char * location;
+  bool dot_first;
 
   bool name;
   char * target;

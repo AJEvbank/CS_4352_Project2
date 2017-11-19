@@ -9,7 +9,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     inst->cwd = true;
     inst->noArgs = true;
     inst->location = "";
-    printf(".\n");
+    inst->dot_first = true;
     return;
   }
   else if(argc == 2)
@@ -17,6 +17,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     inst->noArgs = true;
     inst->location = argv[1];
     inst->given = true;
+    if (argv[1][0] == '.') { inst->dot_first = true; }
     return;
   }
   else
@@ -77,7 +78,10 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 inst->inum = true;
                 break;
       case 'd':
-                inst->del = true;
+                if(inst->rm == false)
+                {
+                  inst->del = true;
+                }
                 break;
       case 'e':
                 inst->exec = true;
@@ -95,6 +99,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 else if (strcmp(optarg,"rm") == 0)
                 {
                   inst->rm = true;
+                  inst->del = false;
                 }
                 else if (strcmp(optarg,"mv") == 0)
                 {
@@ -132,6 +137,7 @@ struct instruction_status * initialize_inst()
   rtrn->inode = 0;
   rtrn->cwd = false;
   rtrn->given = false;
+  rtrn->dot_first = false;
   rtrn->name = false;
   rtrn->mmin = false;
   rtrn->less_than = false;
@@ -219,6 +225,26 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
           }
         }
       }
+      else if (inst->noArgs == true && strcmp(dir_entry->d_name,tempSelf) == 0)
+      {
+        if (inst->given == false && strlen(current_dir) == 0)
+        {
+          printf("%s \n",dir_entry->d_name);
+        }
+        else if (inst->given == true && strcmp(inst->location,current_dir) == 0)
+        {
+          if(inst->dot_first == true)
+          {
+            if(current_dir[0] == '.') { printf("%s\n",current_dir); }
+            else { printf("./%s\n",current_dir); }
+          }
+          else
+          {
+            if(current_dir[0] == '.') { printf("%s\n",&current_dir[2]); }
+            else { printf("%s\n",current_dir); }
+          }
+        }
+      }
     }
     closedir(directory);
   }
@@ -274,7 +300,6 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
       }
       else if(inst->rm == true)
       {
-        inst->del = false;
         arg0 = strcpy(arg0,"/bin/rm");
         arg1[0] = "rm";
         arg1[1] = temp;
@@ -307,7 +332,8 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
     }
     else
     {
-      printf("%s \n",temp);
+      if(inst->dot_first == true) { printf("%s \n",temp); }
+      else { printf("%s \n",&temp[2]); }
     }
   }
   return;
