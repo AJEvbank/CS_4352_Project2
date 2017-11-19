@@ -22,8 +22,8 @@ struct instruction_status
   bool noArgs;
   bool foundOneTarget;
 
-  bool cwd;
-  bool given;
+  bool cwd; //Starting point.
+  bool given; //Starting point.
   char * location;
   bool dot_first;
 
@@ -72,3 +72,7 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
 bool minutes_check(struct instruction_status * inst, time_t mod);
 
 char * com_string(struct instruction_status * inst);
+
+void scan_directory_noArgs(struct instruction_status * inst, char * current_dir);
+
+void execute_instructions_noArgs(struct instruction_status * inst, struct stat buf, char * temp);

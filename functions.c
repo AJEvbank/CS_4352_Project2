@@ -184,6 +184,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   /* Look at each entry in the directory. */
     while((dir_entry = readdir(directory)) != NULL)
     {
+      printf("=>%s \n",dir_entry->d_name);
       if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && strcmp(dir_entry->d_name,"find") != 0)
       {
         if (inst->cwd == true && strlen(current_dir) == 0)
@@ -196,12 +197,16 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
         else
         {
           temp[0] = '\0';
-          temp = strcat(temp,tempSelf);
-          temp = strcat(temp,tempSlash);
+          if(inst->dot_first == false)
+          {
+            temp = strcat(temp,tempSelf);
+            temp = strcat(temp,tempSlash);
+          }
           temp = strcat(temp,current_dir);
           temp = strcat(temp,tempSlash);
           temp = strcat(temp,dir_entry->d_name);
         }
+        printf("E %s \n",temp);
         if(stat(temp,&buf) < 0)
         {
           printf("Could not get attributes for %s. \n",temp);
@@ -216,7 +221,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
           /* If the entry is a directory, run test and, if necessary, push it onto the directory stack. */
           else if (S_ISDIR(buf.st_mode))
           {
-            if (inst->noArgs == true) { printf("%s\n",temp); }
+            if (inst->noArgs == true) { printf("C %s\n",temp); }
             scan_directory(inst,&temp[2]);
           }
           else
@@ -229,19 +234,19 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
       {
         if (inst->given == false && strlen(current_dir) == 0)
         {
-          printf("%s \n",dir_entry->d_name);
+          printf("1=>%s \n",dir_entry->d_name);
         }
         else if (inst->given == true && strcmp(inst->location,current_dir) == 0)
         {
           if(inst->dot_first == true)
           {
-            if(current_dir[0] == '.') { printf("%s\n",current_dir); }
-            else { printf("./%s\n",current_dir); }
+            if(current_dir[0] == '.') { printf("2a=>%s\n",current_dir); }
+            else { printf("2b=>./%s\n",current_dir); }
           }
           else
           {
-            if(current_dir[0] == '.') { printf("%s\n",&current_dir[2]); }
-            else { printf("%s\n",current_dir); }
+            if(current_dir[0] == '.') { printf("3a=>%s\n",&current_dir[2]); }
+            else { printf("3b=>%s\n",current_dir); }
           }
         }
       }
@@ -258,6 +263,83 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   return;
 }
 
+void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
+{
+  DIR * directory = NULL;
+  /* Open the directory */
+  if (inst->cwd == true && strlen(current_dir) == 0)
+  {
+    directory = opendir(".");
+  }
+  else
+  {
+    directory = opendir(current_dir);
+  }
+  if (directory != NULL)
+  {
+  /* Look at each entry in the directory. */
+    while((dir_entry = readdir(directory)) != NULL)
+    {
+      printf("=>%s \n",dir_entry->d_name);
+      if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && strcmp(dir_entry->d_name,"find") != 0)
+      {
+        if (inst->cwd == true && strlen(current_dir) == 0)
+        {
+          temp[0] = '\0';
+          temp = strcat(temp,tempSelf);
+          temp = strcat(temp,tempSlash);
+          temp = strcat(temp,dir_entry->d_name);
+        }
+        else
+        {
+          temp[0] = '\0';
+          if(inst->dot_first == false)
+          {
+            temp = strcat(temp,tempSelf);
+            temp = strcat(temp,tempSlash);
+          }
+          temp = strcat(temp,current_dir);
+          temp = strcat(temp,tempSlash);
+          temp = strcat(temp,dir_entry->d_name);
+        }
+        printf("E %s \n",temp);
+        if(stat(temp,&buf) < 0)
+        {
+          printf("Could not get attributes for %s. \n",temp);
+        }
+        else
+        {
+          /* If the entry is a file, run test and execute. */
+          if (S_ISREG(buf.st_mode))
+          {
+            execute_instructions_noArgs(inst, buf, temp);
+          }
+          /* If the entry is a directory, run test and, if necessary, push it onto the directory stack. */
+          else if (S_ISDIR(buf.st_mode))
+          {
+            printf("C %s\n",temp);
+            scan_directory_noArgs(inst,&temp[2]);
+          }
+          else
+          {
+            printf("%s is not a file or a directory \n",temp);
+          }
+        }
+      }
+      else if (strcmp(dir_entry->d_name,tempSelf) == 0 && strcmp(inst->location,current_dir) && inst->cwd == true)
+      {
+        printf("%s \n".dir_entry->d_name);
+      }
+    }
+    closedir(directory);
+  }
+  else
+  {
+    printf("Cannot open directory: %s \n",current_dir);
+  }
+  free(temp);
+  return;
+}
 void execute_instructions(struct instruction_status * inst, struct stat buf, char * temp)
 {
   bool isTarget = false;
@@ -265,10 +347,9 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
 
   if (SHOW_OUTPUT) printf("checking %s \n",file_nombre);
   if (SHOW_INODES) printf("file %s inode = %lu \n",temp,buf.st_ino);
-
   if (inst->noArgs == true)
   {
-    printf("%s \n",temp);
+    printf("D %s \n",temp);
     return;
   }
   if (inst->name == true)
@@ -332,10 +413,34 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
     }
     else
     {
-      if(inst->dot_first == true) { printf("%s \n",temp); }
-      else { printf("%s \n",&temp[2]); }
+      if(inst->dot_first == true) { printf("A %s \n",temp); }
+      else { printf("B %s \n",&temp[2]); }
     }
   }
+  return;
+}
+
+void execute_instructions_noArgs(struct instruction_status * inst, struct stat buf, char * temp)
+{
+  if (SHOW_OUTPUT) printf("checking %s \n",file_nombre);
+  if (SHOW_INODES) printf("file %s inode = %lu \n",temp,buf.st_ino);
+
+  if(inst->given == true)
+  {
+    if(inst->dot_first == true)
+    {
+      printf("%s \n",temp);
+    }
+    else
+    {
+      printf("%s \n",&temp[2]);
+    }
+  }
+  else
+  {
+    printf("%s \n",temp);
+  }
+
   return;
 }
 
