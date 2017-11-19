@@ -9,6 +9,11 @@ int main(int argc, char ** argv)
   //display_instruction_status(instructions);
 
 
+  if (instructions->noArgs == true && instructions->given == true)
+  {
+    if((instructions->location)[0] == '.') { printf("%s\n",instructions->location); }
+    else { printf("./%s\n",instructions->location); }
+  }
   scan_directory(instructions, instructions->location);
   if(instructions->noArgs == false && instructions->foundOneTarget == false)
   {

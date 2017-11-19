@@ -9,6 +9,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     inst->cwd = true;
     inst->noArgs = true;
     inst->location = "";
+    printf(".\n");
     return;
   }
   else if(argc == 2)
@@ -174,7 +175,6 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
 
   if (directory != NULL)
   {
-
   /* Look at each entry in the directory. */
     while((dir_entry = readdir(directory)) != NULL)
     {
@@ -218,10 +218,6 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
             printf("%s is not a file or a directory \n",temp);
           }
         }
-      }
-      else if (inst->noArgs == true && strcmp(dir_entry->d_name,tempSelf) == 0 && strlen(current_dir) == 0)
-      {
-        printf("%s \n",dir_entry->d_name);
       }
     }
     closedir(directory);
