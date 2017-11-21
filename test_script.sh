@@ -1,5 +1,7 @@
 #! /bin/bash
 
+cd testdir
+
 echo ./find
 ./find
 echo
