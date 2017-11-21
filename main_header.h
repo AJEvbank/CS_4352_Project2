@@ -16,16 +16,20 @@
 #define SHOW_INODES 0
 #define SHOW_INODES2 0
 #define SHOW_MINS 0
+#define SHOW_INST 0
 
 struct instruction_status
 {
+  bool fail;
+
   bool noArgs;
   bool foundOneTarget;
+  bool openedGivenDirectory;
 
   bool cwd; //Starting point.
   bool given; //Starting point.
   char * location;
-  bool dot_first;
+  bool dot_first_location;
 
   bool name;
   char * target;
@@ -76,3 +80,5 @@ char * com_string(struct instruction_status * inst);
 void scan_directory_noArgs(struct instruction_status * inst, char * current_dir);
 
 void execute_instructions_noArgs(struct instruction_status * inst, struct stat buf, char * temp);
+
+bool isTarget(struct instruction_status * inst, struct stat buf, char * temp);

@@ -17,7 +17,6 @@ void display_instruction_status(struct instruction_status * inst)
     if(inst->name)
     {
       printf("target = %s \n",inst->target);
-      printf("dot_first = %d \n",inst->dot_first);
     }
     else
     {
@@ -75,7 +74,7 @@ void display_instruction_status(struct instruction_status * inst)
   {
     printf("program in noArgs mode \n");
     printf("location = %s \n",inst->location);
-    printf("dot_first = %d \n",inst->dot_first);
+    printf("dot_first_location = %d \n",inst->dot_first_location);
   }
   printf("\n\n");
   return;

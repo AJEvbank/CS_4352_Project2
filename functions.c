@@ -9,7 +9,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     inst->cwd = true;
     inst->noArgs = true;
     inst->location = "";
-    inst->dot_first = true;
+    inst->dot_first_location = true;
     return;
   }
   else if(argc == 2)
@@ -17,20 +17,23 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     inst->noArgs = true;
     inst->location = argv[1];
     inst->given = true;
-    if (argv[1][0] == '.') { inst->dot_first = true; }
+    if (argv[1][0] == '.') { inst->dot_first_location = true; }
+    if (strcmp(argv[1],".") == 0) { inst->cwd = true; inst->location = ""; inst->given = false; }
     return;
   }
   else
   {
-    if (argv[1][0] != '-')
+    if (argv[1][0] != '-' && strcmp(argv[1],".") != 0)
     {
       inst->location = argv[1];
       inst->given = true;
+      if (argv[1][0] == '.') { inst->dot_first_location = true; }
     }
     else
     {
       inst->cwd = true;
       inst->location = "";
+      inst->dot_first_location = true;
     }
   }
 
@@ -87,13 +90,14 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 inst->exec = true;
                 if (strcmp(optarg,"cat") == 0)
                 {
-                  if (inst->name == true)
+                  if (inst->name == true || inst->mmin == true || inst->inum == true)
                   {
                     inst->cat = true;
                   }
                   else
                   {
-                    printf("name argument required for cat \n");
+                    printf("criteria -inum, -name, or -mmin required for cat \n");
+                    inst->fail = true;
                   }
                 }
                 else if (strcmp(optarg,"rm") == 0)
@@ -104,7 +108,6 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 else if (strcmp(optarg,"mv") == 0)
                 {
                   inst->mv = true;
-                  //printf("optind = %d, argc = %d \n",optind,argc);
                   if (optind < argc)
                   {
                     inst->destination = argv[optind];
@@ -112,13 +115,13 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                   else
                   {
                     printf("No valid destination provided for option -exec mv. \n");
-                    inst->mv = false;inst->exec = false;
+                    inst->mv = false;inst->exec = false; inst->fail = true;
                   }
                 }
                 else
                 {
                   printf("No valid argument provided for option -exec. \n");
-                  inst->exec = false;
+                  inst->exec = false; inst->fail = true;
                 }
                 break;
       default:
@@ -137,7 +140,7 @@ struct instruction_status * initialize_inst()
   rtrn->inode = 0;
   rtrn->cwd = false;
   rtrn->given = false;
-  rtrn->dot_first = false;
+  rtrn->dot_first_location = false;
   rtrn->name = false;
   rtrn->mmin = false;
   rtrn->less_than = false;
@@ -145,11 +148,13 @@ struct instruction_status * initialize_inst()
   rtrn->equal_to = false;
   rtrn->noArgs = false;
   rtrn->foundOneTarget = false;
+  rtrn->openedGivenDirectory = false;
   rtrn->del = false;
   rtrn->exec = false;
   rtrn->cat = false;
   rtrn->rm = false;
   rtrn->mv = false;
+  rtrn->fail = false;
   return rtrn;
 }
 
@@ -175,19 +180,21 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   struct dirent * dir_entry;
   struct stat buf;
   char * temp = (char *)malloc(sizeof(char) * 256);
+  //char * pass = (char *)malloc(sizeof(char) * 256);
   char tempSelf[] = ".";
   char tempParent[] = "..";
   char tempSlash[] = "/";
 
   if (directory != NULL)
   {
+    inst->openedGivenDirectory = true;
   /* Look at each entry in the directory. */
     while((dir_entry = readdir(directory)) != NULL)
     {
-      printf("=>%s \n",dir_entry->d_name);
+      //printf("=>%s \n",dir_entry->d_name);
       if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && strcmp(dir_entry->d_name,"find") != 0)
       {
-        if (inst->cwd == true && strlen(current_dir) == 0)
+        if ((inst->cwd == true && strlen(current_dir) == 0))
         {
           temp[0] = '\0';
           temp = strcat(temp,tempSelf);
@@ -197,7 +204,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
         else
         {
           temp[0] = '\0';
-          if(inst->dot_first == false)
+          if(strncmp(current_dir,"./",2) != 0)
           {
             temp = strcat(temp,tempSelf);
             temp = strcat(temp,tempSlash);
@@ -206,7 +213,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
           temp = strcat(temp,tempSlash);
           temp = strcat(temp,dir_entry->d_name);
         }
-        printf("E %s \n",temp);
+        //printf("E %s \n",temp);
         if(stat(temp,&buf) < 0)
         {
           printf("Could not get attributes for %s. \n",temp);
@@ -218,35 +225,14 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
           {
             execute_instructions(inst, buf, temp);
           }
-          /* If the entry is a directory, run test and, if necessary, push it onto the directory stack. */
+          /* If the entry is a directory, run test and call scan_directory on it. */
           else if (S_ISDIR(buf.st_mode))
           {
-            if (inst->noArgs == true) { printf("C %s\n",temp); }
-            scan_directory(inst,&temp[2]);
+            scan_directory(inst,temp);
           }
           else
           {
             printf("%s is not a file or a directory \n",temp);
-          }
-        }
-      }
-      else if (inst->noArgs == true && strcmp(dir_entry->d_name,tempSelf) == 0)
-      {
-        if (inst->given == false && strlen(current_dir) == 0)
-        {
-          printf("1=>%s \n",dir_entry->d_name);
-        }
-        else if (inst->given == true && strcmp(inst->location,current_dir) == 0)
-        {
-          if(inst->dot_first == true)
-          {
-            if(current_dir[0] == '.') { printf("2a=>%s\n",current_dir); }
-            else { printf("2b=>./%s\n",current_dir); }
-          }
-          else
-          {
-            if(current_dir[0] == '.') { printf("3a=>%s\n",&current_dir[2]); }
-            else { printf("3b=>%s\n",current_dir); }
           }
         }
       }
@@ -256,8 +242,6 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   else
   {
     printf("Cannot open directory: %s \n",current_dir);
-    free(temp);
-    return;
   }
   free(temp);
   return;
@@ -275,12 +259,21 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
   {
     directory = opendir(current_dir);
   }
+
+  struct dirent * dir_entry;
+  struct stat buf;
+  char * temp = (char *)malloc(sizeof(char) * 256);
+  char tempSelf[] = ".";
+  char tempParent[] = "..";
+  char tempSlash[] = "/";
+
   if (directory != NULL)
   {
+    inst->openedGivenDirectory = true;
   /* Look at each entry in the directory. */
     while((dir_entry = readdir(directory)) != NULL)
     {
-      printf("=>%s \n",dir_entry->d_name);
+      //printf("=>%s \n",dir_entry->d_name);
       if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && strcmp(dir_entry->d_name,"find") != 0)
       {
         if (inst->cwd == true && strlen(current_dir) == 0)
@@ -293,7 +286,7 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
         else
         {
           temp[0] = '\0';
-          if(inst->dot_first == false)
+          if(strncmp(current_dir,"./",2) != 0)
           {
             temp = strcat(temp,tempSelf);
             temp = strcat(temp,tempSlash);
@@ -302,7 +295,7 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
           temp = strcat(temp,tempSlash);
           temp = strcat(temp,dir_entry->d_name);
         }
-        printf("E %s \n",temp);
+        //printf("E %s \n",temp);
         if(stat(temp,&buf) < 0)
         {
           printf("Could not get attributes for %s. \n",temp);
@@ -314,11 +307,11 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
           {
             execute_instructions_noArgs(inst, buf, temp);
           }
-          /* If the entry is a directory, run test and, if necessary, push it onto the directory stack. */
+          /* If the entry is a directory, call scan_directory_noArgs on it. */
           else if (S_ISDIR(buf.st_mode))
           {
-            printf("C %s\n",temp);
-            scan_directory_noArgs(inst,&temp[2]);
+            execute_instructions_noArgs(inst, buf, temp);
+            scan_directory_noArgs(inst,temp);
           }
           else
           {
@@ -326,9 +319,9 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
           }
         }
       }
-      else if (strcmp(dir_entry->d_name,tempSelf) == 0 && strcmp(inst->location,current_dir) && inst->cwd == true)
+      else if (strcmp(dir_entry->d_name,tempSelf) == 0 && strcmp(inst->location,current_dir) == 0 && inst->dot_first_location == true)
       {
-        printf("%s \n".dir_entry->d_name);
+        printf("%s \n",dir_entry->d_name);
       }
     }
     closedir(directory);
@@ -340,29 +333,15 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
   free(temp);
   return;
 }
+
 void execute_instructions(struct instruction_status * inst, struct stat buf, char * temp)
 {
-  bool isTarget = false;
   char * file_nombre = strrchr(temp,'/');
 
   if (SHOW_OUTPUT) printf("checking %s \n",file_nombre);
   if (SHOW_INODES) printf("file %s inode = %lu \n",temp,buf.st_ino);
-  if (inst->noArgs == true)
-  {
-    printf("D %s \n",temp);
-    return;
-  }
-  if (inst->name == true)
-  {
-    if ((strcmp(inst->target,&file_nombre[1]) == 0)) { isTarget = true; } else { return; }
-  }
-  if (inst->mmin == true) { isTarget = minutes_check(inst, buf.st_mtime); if(!isTarget) return; }
-  if (inst->inum == true)
-  {
-    if (SHOW_INODES2) printf("ino = %lu \n",buf.st_ino);
-    if(inst->inode == buf.st_ino) { isTarget = true; } else { return; }
-  }
-  if (isTarget)
+
+  if (isTarget(inst,buf,temp))
   {
     inst->foundOneTarget = true;
     if (inst->exec == true)
@@ -399,6 +378,7 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
         if(execv(arg0,arg1) == -1)
         {
           printf("%s failed on %s \n",arg0,temp);
+          exit(0);
           return;
         }
       }
@@ -413,8 +393,8 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
     }
     else
     {
-      if(inst->dot_first == true) { printf("A %s \n",temp); }
-      else { printf("B %s \n",&temp[2]); }
+      if(inst->dot_first_location == false) { printf("%s\n",&temp[2]); }
+      else { printf("%s\n",temp); }
     }
   }
   return;
@@ -422,25 +402,21 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
 
 void execute_instructions_noArgs(struct instruction_status * inst, struct stat buf, char * temp)
 {
-  if (SHOW_OUTPUT) printf("checking %s \n",file_nombre);
+  if (SHOW_OUTPUT)
+  {
+    char * file_nombre = strrchr(temp,'/');
+    printf("checking %s \n",file_nombre);
+  }
   if (SHOW_INODES) printf("file %s inode = %lu \n",temp,buf.st_ino);
 
-  if(inst->given == true)
-  {
-    if(inst->dot_first == true)
-    {
-      printf("%s \n",temp);
-    }
-    else
-    {
-      printf("%s \n",&temp[2]);
-    }
-  }
-  else
+  if (inst->dot_first_location == true)
   {
     printf("%s \n",temp);
   }
-
+  else
+  {
+    printf("%s \n",&temp[2]);
+  }
   return;
 }
 
@@ -464,7 +440,20 @@ bool minutes_check(struct instruction_status * inst, time_t mod)
   return rtrn;
 }
 
-char * com_string(struct instruction_status * inst)
+bool isTarget(struct instruction_status * inst, struct stat buf, char * temp)
 {
-  return (char *)0;
+  bool isTarget = false;
+  char * file_nombre = strrchr(temp,'/');
+
+  if (inst->name == true)
+  {
+    if ((strcmp(inst->target,&file_nombre[1]) == 0)) { isTarget = true; } else { return false; }
+  }
+  if (inst->mmin == true) { isTarget = minutes_check(inst, buf.st_mtime); if(!isTarget) return false; }
+  if (inst->inum == true)
+  {
+    if (SHOW_INODES2) printf("ino = %lu \n",buf.st_ino);
+    if(inst->inode == buf.st_ino) { isTarget = true; } else { return false; }
+  }
+  return isTarget;
 }

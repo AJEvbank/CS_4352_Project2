@@ -6,21 +6,31 @@ int main(int argc, char ** argv)
   struct instruction_status * instructions = initialize_inst();
 
   getCommandArgs(argc,argv,instructions);
-  display_instruction_status(instructions);
+  if (SHOW_INST) display_instruction_status(instructions);
 
-  if(instructions->noArgs == true)
+  if (instructions->fail == false)
   {
-    scan_directory_noArgs(instructions, instructions->location);
-  }
-  else
-  {
-    scan_directory(instructions, instructions->location);
-    if(instructions->foundOneTarget == false)
+    if(instructions->noArgs == true)
     {
-      printf("%s: no such file \n",instructions->target);
+      scan_directory_noArgs(instructions, instructions->location);
+    }
+    else
+    {
+      scan_directory(instructions, instructions->location);
+      if(instructions->openedGivenDirectory == true && instructions->foundOneTarget == false)
+      {
+        if (instructions->name == true)
+        {
+          printf("%s: not found \n",instructions->target);
+        }
+        else
+        {
+          printf("target not found \n");
+        }
+
+      }
     }
   }
-
 
   waitpid(-1,&wstatus,0);
   destroy_inst(instructions);
