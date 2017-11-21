@@ -12,7 +12,7 @@
 #include "math.h"
 #include "time.h"
 
-#define SHOW_INST 1
+#define SHOW_INST 0
 
 //Contains the state of the instructions given to the program by the user.
 struct instruction_status

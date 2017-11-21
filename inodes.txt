@@ -1,40 +1,44 @@
+.:
+total 32
+25332747904204197 -rwxrwxrwx 1 root root   477 Nov 14 16:15 build_directories.sh
+ 5629499534458276 -rwxrwxrwx 1 root root  1772 Nov 21 16:30 debug.c
+ 3377699720773027 -rwxrwxrwx 1 root root 14637 Nov 21 16:58 functions.c
+  844424930379925 -rwxrwxrwx 1 root root     0 Nov 21 17:15 inodes.txt
+ 9288674231698075 -rwxrwxrwx 1 root root   567 Nov 17 14:03 insert_foos.sh
+  562949953560139 -rwxrwxrwx 1 root root  1091 Nov  5 09:27 LICENSE
+ 4222124650800831 -rwxrwxrwx 1 root root  1067 Nov 21 16:39 main.c
+ 1125899906983616 -rwxrwxrwx 1 root root  2980 Nov 21 17:02 main_header.h
+ 1407374883694273 -rwxrwxrwx 1 root root    81 Nov 14 15:56 makefile
+  281474976849484 -rwxrwxrwx 1 root root    66 Nov  5 09:27 README.md
+ 3096224744065104 drwxrwxrwx 0 root root  4096 Nov 21 17:02 testdir
+ 4222124650906788 -rwxrwxrwx 1 root root   207 Nov 21 17:15 test_script.sh
 
+./testdir:
+total 20
+1125899907090542 -rwxrwxrwx 1 root root    28 Nov 21 08:13 alligator
+1125899907090540 -rwxrwxrwx 1 root root    23 Nov 21 08:13 bird
+6473924464592981 drwxrwxrwx 0 root root  4096 Nov 21 08:13 dir1
+6192449487882327 drwxrwxrwx 0 root root  4096 Nov 21 08:13 dir3
+9007199254988697 -rwxrwxrwx 1 root root 19040 Nov 21 17:02 find
+1688849860511851 -rwxrwxrwx 1 root root    23 Nov 21 08:13 foo
+5348024557750353 -rwxrwxrwx 1 root root    15 Nov 21 08:12 test1
+4503599627618386 -rwxrwxrwx 1 root root    15 Nov 21 08:12 test2
 
-program in help mode 
-location =  
+./testdir/dir1:
+total 0
+ 2814749767354459 drwxrwxrwx 0 root root 4096 Nov 21 10:31 dir2
+17169973579596927 -rwxrwxrwx 1 root root   28 Nov 21 08:13 foo
+ 5629499534461017 -rwxrwxrwx 1 root root   15 Nov 21 08:12 test3
+ 3377699720775770 -rwxrwxrwx 1 root root   15 Nov 21 08:12 test4
 
+./testdir/dir1/dir2:
+total 0
+1125899907090541 -rwxrwxrwx 1 root root 22 Nov 21 08:13 dog
+3096224744065123 -rwxrwxrwx 1 root root 33 Nov 21 08:13 foo
+5066549581039708 -rwxrwxrwx 1 root root 15 Nov 21 08:12 test6
 
-. 
-./dir1
-./dir1/dir2
-file ./dir1/dir2/foo inode = 7599824371434297 
-./dir1/dir2/foo 
-file ./dir1/dir2/test5 inode = 562949953666499 
-./dir1/dir2/test5 
-file ./dir1/dir2/test6 inode = 281474976955845 
-./dir1/dir2/test6 
-file ./dir1/foo inode = 32369622321971997 
-./dir1/foo 
-file ./dir1/test3 inode = 562949953666496 
-./dir1/test3 
-file ./dir1/test4 inode = 281474976955842 
-./dir1/test4 
-./dir3
-file ./dir3/foo inode = 5066549581038395 
-./dir3/foo 
-file ./dir3/test7 inode = 281474976955847 
-./dir3/test7 
-file ./dir3/test8 inode = 562949953666502 
-./dir3/test8 
-file ./find inode = 11821949022093969 
-./find 
-file ./foo inode = 1688849860510524 
-./foo 
-file ./inodes.txt inode = 1970324837221181 
-./inodes.txt 
-file ./test1 inode = 562949953666492 
-./test1 
-file ./test2 inode = 281474976955838 
-./test2 
-
-
+./testdir/dir3:
+total 0
+2533274790643816 -rwxrwxrwx 1 root root 28 Nov 21 08:13 foo
+3377699720775775 -rwxrwxrwx 1 root root 15 Nov 21 08:12 test7
+3659174697486432 -rwxrwxrwx 1 root root 15 Nov 21 08:12 test8
