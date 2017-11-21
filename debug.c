@@ -1,6 +1,7 @@
 #include "main_header.h"
 
 void display_instruction_status(struct instruction_status * inst)
+//Function to display information about the instructions given to the program by the user.
 {
   printf("\n\n");
   if (!inst->noArgs)

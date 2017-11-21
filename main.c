@@ -8,16 +8,16 @@ int main(int argc, char ** argv)
   getCommandArgs(argc,argv,instructions);
   if (SHOW_INST) display_instruction_status(instructions);
 
-  if (instructions->fail == false)
+  if (instructions->fail == false) //If the user provided invalid instructions, abort.
   {
-    if(instructions->noArgs == true)
+    if(instructions->noArgs == true) //In the case of 1 or 0 arguments.
     {
       scan_directory_noArgs(instructions, instructions->location);
     }
-    else
+    else //In the case of 2 or more arguments.
     {
       scan_directory(instructions, instructions->location);
-      if(instructions->openedGivenDirectory == true && instructions->foundOneTarget == false)
+      if(instructions->openedGivenDirectory == true && instructions->foundOneTarget == false) //If no file was found matching the criteria.
       {
         if (instructions->name == true)
         {

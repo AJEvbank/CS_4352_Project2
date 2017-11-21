@@ -1,10 +1,12 @@
 #include "main_header.h"
 
 void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
+//Gets the arguments from the command line and sets up the instruction state of
+//the program.
 {
   int ch,opt_index;
 
-  if (argc == 1)
+  if (argc == 1) //If the user provided no arguments...
   {
     inst->cwd = true;
     inst->noArgs = true;
@@ -12,7 +14,7 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
     inst->dot_first_location = true;
     return;
   }
-  else if(argc == 2)
+  else if(argc == 2) //If the user provided only one argument.
   {
     inst->noArgs = true;
     inst->location = argv[1];
@@ -54,12 +56,12 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
 
     switch (ch)
     {
-      case 'n':
+      case 'n': //-name
                 inst->target = optarg;
                 inst->name = true;
                 break;
 
-      case 'm':
+      case 'm': //-mmin
                 inst->mmin = true;
                 inst->minutes = fabs(atoi(optarg));
                 if (optarg[0] == '-')
@@ -76,21 +78,22 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 }
                 break;
 
-      case 'i':
+      case 'i': //-inum
                 inst->inode = strtoull(optarg,NULL,10);
                 inst->inum = true;
                 break;
-      case 'd':
+      case 'd': //-delete
                 if(inst->rm == false)
                 {
                   inst->del = true;
                 }
                 break;
-      case 'e':
+      case 'e': //-exec
                 inst->exec = true;
+                bool criteria = (inst->name == true || inst->mmin == true || inst->inum == true);
                 if (strcmp(optarg,"cat") == 0)
                 {
-                  if (inst->name == true || inst->mmin == true || inst->inum == true)
+                  if (criteria) //Cat needs criteria.
                   {
                     inst->cat = true;
                   }
@@ -102,21 +105,38 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
                 }
                 else if (strcmp(optarg,"rm") == 0)
                 {
-                  inst->rm = true;
-                  inst->del = false;
-                }
-                else if (strcmp(optarg,"mv") == 0)
-                {
-                  inst->mv = true;
-                  if (optind < argc)
+                  if (criteria) //Rm needs criteria.
                   {
-                    inst->destination = argv[optind];
+                    inst->rm = true;
+                    inst->del = false; //Rm overrides -delete.
                   }
                   else
                   {
-                    printf("No valid destination provided for option -exec mv. \n");
-                    inst->mv = false;inst->exec = false; inst->fail = true;
+                    printf("criteria -inum, -name, or -mmin required for rm \n");
+                    inst->fail = true;
                   }
+                }
+                else if (strcmp(optarg,"mv") == 0)
+                {
+                  if (criteria) //Mv needs criteria.
+                  {
+                    inst->mv = true;
+                    if (optind < argc)
+                    {
+                      inst->destination = argv[optind];
+                    }
+                    else
+                    {
+                      printf("No valid destination provided for option -exec mv. \n");
+                      inst->mv = false;inst->exec = false; inst->fail = true;
+                    }
+                  }
+                  else
+                  {
+                    printf("criteria -inum, -name, or -mmin required for mv \n");
+                    inst->fail = true;
+                  }
+
                 }
                 else
                 {
@@ -132,6 +152,8 @@ void getCommandArgs(int argc, char ** argv, struct instruction_status * inst)
 }
 
 struct instruction_status * initialize_inst()
+//Initializes the instruction state of the program and the initial values of the
+//instructions.
 {
   struct instruction_status * rtrn = (struct instruction_status *)malloc(sizeof(struct instruction_status));
   rtrn->location = NULL;
@@ -159,12 +181,14 @@ struct instruction_status * initialize_inst()
 }
 
 void destroy_inst(struct instruction_status * inst)
+//Destroys the instruction state container.
 {
   free(inst);
   return;
 }
 
 void scan_directory(struct instruction_status * inst, char * current_dir)
+//Examines each object in current_dir and runs the appropriate function on it.
 {
   DIR * directory = NULL;
   /* Open the directory */
@@ -180,21 +204,19 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
   struct dirent * dir_entry;
   struct stat buf;
   char * temp = (char *)malloc(sizeof(char) * 256);
-  //char * pass = (char *)malloc(sizeof(char) * 256);
   char tempSelf[] = ".";
   char tempParent[] = "..";
   char tempSlash[] = "/";
 
   if (directory != NULL)
   {
-    inst->openedGivenDirectory = true;
+    inst->openedGivenDirectory = true; //Notes if successfully opened.
   /* Look at each entry in the directory. */
     while((dir_entry = readdir(directory)) != NULL)
     {
-      //printf("=>%s \n",dir_entry->d_name);
       if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && strcmp(dir_entry->d_name,"find") != 0)
       {
-        if ((inst->cwd == true && strlen(current_dir) == 0))
+        if ((inst->cwd == true && strlen(current_dir) == 0)) //If in cwd, then no need for current_dir in name.
         {
           temp[0] = '\0';
           temp = strcat(temp,tempSelf);
@@ -213,8 +235,7 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
           temp = strcat(temp,tempSlash);
           temp = strcat(temp,dir_entry->d_name);
         }
-        //printf("E %s \n",temp);
-        if(stat(temp,&buf) < 0)
+        if(stat(temp,&buf) < 0) //Get the file attributes.
         {
           printf("Could not get attributes for %s. \n",temp);
         }
@@ -248,6 +269,9 @@ void scan_directory(struct instruction_status * inst, char * current_dir)
 }
 
 void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
+//If the user has provided one or no arguments, then the program will use this function
+//instead of scan_directory(). It examines each in object in current_dir object
+//and displays the name of the object in the correct format using execute_instructions_noArgs().
 {
   DIR * directory = NULL;
   /* Open the directory */
@@ -273,10 +297,9 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
   /* Look at each entry in the directory. */
     while((dir_entry = readdir(directory)) != NULL)
     {
-      //printf("=>%s \n",dir_entry->d_name);
       if(strcmp(dir_entry->d_name,tempSelf) != 0 && strcmp(dir_entry->d_name,tempParent) != 0 && strcmp(dir_entry->d_name,"find") != 0)
       {
-        if (inst->cwd == true && strlen(current_dir) == 0)
+        if (inst->cwd == true && strlen(current_dir) == 0) //If in cwd, no need for current_dir in name.
         {
           temp[0] = '\0';
           temp = strcat(temp,tempSelf);
@@ -295,8 +318,7 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
           temp = strcat(temp,tempSlash);
           temp = strcat(temp,dir_entry->d_name);
         }
-        //printf("E %s \n",temp);
-        if(stat(temp,&buf) < 0)
+        if(stat(temp,&buf) < 0) //Get the file attributes.
         {
           printf("Could not get attributes for %s. \n",temp);
         }
@@ -321,7 +343,7 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
       }
       else if (strcmp(dir_entry->d_name,tempSelf) == 0 && strcmp(inst->location,current_dir) == 0 && inst->dot_first_location == true)
       {
-        printf("%s \n",dir_entry->d_name);
+        printf("%s \n",dir_entry->d_name); //Print "." in where-to-look directory given by user.
       }
     }
     closedir(directory);
@@ -335,20 +357,16 @@ void scan_directory_noArgs(struct instruction_status * inst, char * current_dir)
 }
 
 void execute_instructions(struct instruction_status * inst, struct stat buf, char * temp)
+//Tests and executes the appropriate instructions on the object named temp.
 {
-  char * file_nombre = strrchr(temp,'/');
-
-  if (SHOW_OUTPUT) printf("checking %s \n",file_nombre);
-  if (SHOW_INODES) printf("file %s inode = %lu \n",temp,buf.st_ino);
-
-  if (isTarget(inst,buf,temp))
+  if (isTarget(inst,buf,temp)) //If the file fits the user's given criteria.
   {
     inst->foundOneTarget = true;
-    if (inst->exec == true)
+    if (inst->exec == true) //-exec overrides other instructions.
     {
       char * arg0 = (char *)malloc(sizeof(char) * 128);
       char **arg1 = (char **)malloc(sizeof(char *) * 32);
-      if(inst->cat == true)
+      if(inst->cat == true) //Open and print the file.
       {
         char ch;
         FILE * fd = fopen(temp,"r");
@@ -358,14 +376,14 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
         fclose(fd);
         return;
       }
-      else if(inst->rm == true)
+      else if(inst->rm == true)  // Build the command string for execv call.
       {
         arg0 = strcpy(arg0,"/bin/rm");
         arg1[0] = "rm";
         arg1[1] = temp;
         arg1[2] = (char *)0;
       }
-      else if(inst->mv == true)
+      else if(inst->mv == true)  // Build the command string for execv call.
       {
         arg0 = "/bin/mv";
         arg1[0] = "mv";
@@ -373,9 +391,9 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
         arg1[2] = inst->destination;
         arg1[3] = (char *)0;
       }
-      if (fork() == 0)
+      if (fork() == 0) // Create child process to be overwritten by execv call.
       {
-        if(execv(arg0,arg1) == -1)
+        if(execv(arg0,arg1) == -1) // Run system call.
         {
           printf("%s failed on %s \n",arg0,temp);
           exit(0);
@@ -387,13 +405,13 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
         return;
       }
     }
-    else if (inst->del == true)
+    else if (inst->del == true) //-delete overrides displaying the name
     {
       if(remove(temp) != 0){ printf("remove failed on %s \n",temp); }
     }
-    else
+    else // The default instruction to execute.
     {
-      if(inst->dot_first_location == false) { printf("%s\n",&temp[2]); }
+      if(inst->dot_first_location == false) { printf("%s\n",&temp[2]); } //Display the file name in the correct format.
       else { printf("%s\n",temp); }
     }
   }
@@ -401,15 +419,9 @@ void execute_instructions(struct instruction_status * inst, struct stat buf, cha
 }
 
 void execute_instructions_noArgs(struct instruction_status * inst, struct stat buf, char * temp)
+//Displays the name of the object temp in the correct format.
 {
-  if (SHOW_OUTPUT)
-  {
-    char * file_nombre = strrchr(temp,'/');
-    printf("checking %s \n",file_nombre);
-  }
-  if (SHOW_INODES) printf("file %s inode = %lu \n",temp,buf.st_ino);
-
-  if (inst->dot_first_location == true)
+  if (inst->dot_first_location == true) // Test for the correct format.
   {
     printf("%s \n",temp);
   }
@@ -421,19 +433,20 @@ void execute_instructions_noArgs(struct instruction_status * inst, struct stat b
 }
 
 bool minutes_check(struct instruction_status * inst, time_t mod)
+//Compares mod to the instructions given by the user and returns true if mod falls
+//into the range given by the user.
 {
-  time_t min = (time(NULL) - mod)/60;
+  time_t min = (time(NULL) - mod)/60; // Get the time difference between the present and mod.
   bool rtrn = false;
-  if (SHOW_MINS) printf("minutes = %d : mtime = %lu : min = %lu \n",inst->minutes,mod,min);
-  if(inst->less_than == true && min < inst->minutes)
+  if(inst->less_than == true && min < inst->minutes) // If required and passes less_than test.
   {
     rtrn = true;
   }
-  else if (inst->greater_than == true && min > inst->minutes)
+  else if (inst->greater_than == true && min > inst->minutes) // If required and passes greater_than test.
   {
     rtrn = true;
   }
-  else if (inst->equal_to == true && min == inst->minutes)
+  else if (inst->equal_to == true && min == inst->minutes) // If required and passes equal_to test.
   {
     rtrn = true;
   }
@@ -441,18 +454,19 @@ bool minutes_check(struct instruction_status * inst, time_t mod)
 }
 
 bool isTarget(struct instruction_status * inst, struct stat buf, char * temp)
+//Examines the object named temp and returns true if temp falls into the criteria given
+//by the user.
 {
   bool isTarget = false;
-  char * file_nombre = strrchr(temp,'/');
+  char * file_nombre = strrchr(temp,'/'); // Marks object name w/o path.
 
-  if (inst->name == true)
+  if (inst->name == true) // If required and passes, isTarget = true, otherwise return false.
   {
     if ((strcmp(inst->target,&file_nombre[1]) == 0)) { isTarget = true; } else { return false; }
   }
-  if (inst->mmin == true) { isTarget = minutes_check(inst, buf.st_mtime); if(!isTarget) return false; }
-  if (inst->inum == true)
+  if (inst->mmin == true) { isTarget = minutes_check(inst, buf.st_mtime); if(!isTarget) return false; } // If required and passes, isTarget = true, otherwise return false.
+  if (inst->inum == true) // If required and passes, isTarget = true, otherwise return false.
   {
-    if (SHOW_INODES2) printf("ino = %lu \n",buf.st_ino);
     if(inst->inode == buf.st_ino) { isTarget = true; } else { return false; }
   }
   return isTarget;
