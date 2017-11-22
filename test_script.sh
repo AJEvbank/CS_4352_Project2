@@ -2,6 +2,14 @@
 
 cd testdir
 
+echo find
+find
+echo
+
+echo ls -li -R >> ../inodes.txt
+ls -li -R >> ../inodes.txt
+echo
+
 echo ./find
 ./find
 echo
@@ -50,4 +58,8 @@ echo
 
 echo ./find -name bird -exec mv dir1/eagle
 ./find -name bird -exec mv dir1/eagle
+echo
+
+echo find
+find
 echo

@@ -1,44 +1,31 @@
+ls -li -R
 .:
-total 32
-25332747904204197 -rwxrwxrwx 1 root root   477 Nov 14 16:15 build_directories.sh
- 5629499534458276 -rwxrwxrwx 1 root root  1772 Nov 21 16:30 debug.c
- 3377699720773027 -rwxrwxrwx 1 root root 14637 Nov 21 16:58 functions.c
-  844424930379925 -rwxrwxrwx 1 root root     0 Nov 21 17:15 inodes.txt
- 9288674231698075 -rwxrwxrwx 1 root root   567 Nov 17 14:03 insert_foos.sh
-  562949953560139 -rwxrwxrwx 1 root root  1091 Nov  5 09:27 LICENSE
- 4222124650800831 -rwxrwxrwx 1 root root  1067 Nov 21 16:39 main.c
- 1125899906983616 -rwxrwxrwx 1 root root  2980 Nov 21 17:02 main_header.h
- 1407374883694273 -rwxrwxrwx 1 root root    81 Nov 14 15:56 makefile
-  281474976849484 -rwxrwxrwx 1 root root    66 Nov  5 09:27 README.md
- 3096224744065104 drwxrwxrwx 0 root root  4096 Nov 21 17:02 testdir
- 4222124650906788 -rwxrwxrwx 1 root root   207 Nov 21 17:15 test_script.sh
-
-./testdir:
 total 20
-1125899907090542 -rwxrwxrwx 1 root root    28 Nov 21 08:13 alligator
-1125899907090540 -rwxrwxrwx 1 root root    23 Nov 21 08:13 bird
-6473924464592981 drwxrwxrwx 0 root root  4096 Nov 21 08:13 dir1
-6192449487882327 drwxrwxrwx 0 root root  4096 Nov 21 08:13 dir3
-9007199254988697 -rwxrwxrwx 1 root root 19040 Nov 21 17:02 find
-1688849860511851 -rwxrwxrwx 1 root root    23 Nov 21 08:13 foo
-5348024557750353 -rwxrwxrwx 1 root root    15 Nov 21 08:12 test1
-4503599627618386 -rwxrwxrwx 1 root root    15 Nov 21 08:12 test2
+281474976958953 -rwxrwxrwx 1 root root    28 Nov 22 08:49 alligator
+281474976958951 -rwxrwxrwx 1 root root    23 Nov 22 08:49 bird
+281474976958938 drwxrwxrwx 0 root root  4096 Nov 22 08:49 dir1
+281474976958939 drwxrwxrwx 0 root root  4096 Nov 22 08:49 dir3
+562949953669610 -rwxrwxrwx 1 root root 19040 Nov 22 08:49 find
+281474976958950 -rwxrwxrwx 1 root root    23 Nov 22 08:49 foo
+281474976958936 -rwxrwxrwx 1 root root    15 Nov 22 08:49 test1
+281474976958937 -rwxrwxrwx 1 root root    15 Nov 22 08:49 test2
 
-./testdir/dir1:
+./dir1:
 total 0
- 2814749767354459 drwxrwxrwx 0 root root 4096 Nov 21 10:31 dir2
-17169973579596927 -rwxrwxrwx 1 root root   28 Nov 21 08:13 foo
- 5629499534461017 -rwxrwxrwx 1 root root   15 Nov 21 08:12 test3
- 3377699720775770 -rwxrwxrwx 1 root root   15 Nov 21 08:12 test4
+281474976958942 drwxrwxrwx 0 root root 4096 Nov 22 08:49 dir2
+281474976958947 -rwxrwxrwx 1 root root   28 Nov 22 08:49 foo
+281474976958940 -rwxrwxrwx 1 root root   15 Nov 22 08:49 test3
+281474976958941 -rwxrwxrwx 1 root root   15 Nov 22 08:49 test4
 
-./testdir/dir1/dir2:
+./dir1/dir2:
 total 0
-1125899907090541 -rwxrwxrwx 1 root root 22 Nov 21 08:13 dog
-3096224744065123 -rwxrwxrwx 1 root root 33 Nov 21 08:13 foo
-5066549581039708 -rwxrwxrwx 1 root root 15 Nov 21 08:12 test6
+281474976958952 -rwxrwxrwx 1 root root 22 Nov 22 08:49 dog
+281474976958948 -rwxrwxrwx 1 root root 33 Nov 22 08:49 foo
+281474976958943 -rwxrwxrwx 1 root root 15 Nov 22 08:49 test5
+281474976958944 -rwxrwxrwx 1 root root 15 Nov 22 08:49 test6
 
-./testdir/dir3:
+./dir3:
 total 0
-2533274790643816 -rwxrwxrwx 1 root root 28 Nov 21 08:13 foo
-3377699720775775 -rwxrwxrwx 1 root root 15 Nov 21 08:12 test7
-3659174697486432 -rwxrwxrwx 1 root root 15 Nov 21 08:12 test8
+281474976958949 -rwxrwxrwx 1 root root 28 Nov 22 08:49 foo
+281474976958945 -rwxrwxrwx 1 root root 15 Nov 22 08:49 test7
+281474976958946 -rwxrwxrwx 1 root root 15 Nov 22 08:49 test8
