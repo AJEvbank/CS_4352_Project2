@@ -29,3 +29,65 @@ total 0
 281474976958949 -rwxrwxrwx 1 root root 28 Nov 22 08:49 foo
 281474976958945 -rwxrwxrwx 1 root root 15 Nov 22 08:49 test7
 281474976958946 -rwxrwxrwx 1 root root 15 Nov 22 08:49 test8
+ls -li -R
+.:
+total 20
+ 281474976959020 -rwxrwxrwx 1 root root    28 Nov 22 09:03 alligator
+ 281474976959018 -rwxrwxrwx 1 root root    23 Nov 22 09:03 bird
+ 281474976959005 drwxrwxrwx 0 root root  4096 Nov 22 09:03 dir1
+ 281474976959006 drwxrwxrwx 0 root root  4096 Nov 22 09:03 dir3
+1688849860512228 -rwxrwxrwx 1 root root 19040 Nov 22 09:04 find
+ 281474976959017 -rwxrwxrwx 1 root root    23 Nov 22 09:03 foo
+ 281474976959003 -rwxrwxrwx 1 root root    15 Nov 22 09:03 test1
+ 281474976959004 -rwxrwxrwx 1 root root    15 Nov 22 09:03 test2
+
+./dir1:
+total 0
+281474976959009 drwxrwxrwx 0 root root 4096 Nov 22 09:03 dir2
+281474976959014 -rwxrwxrwx 1 root root   28 Nov 22 09:03 foo
+281474976959007 -rwxrwxrwx 1 root root   15 Nov 22 09:03 test3
+281474976959008 -rwxrwxrwx 1 root root   15 Nov 22 09:03 test4
+
+./dir1/dir2:
+total 0
+281474976959019 -rwxrwxrwx 1 root root 22 Nov 22 09:03 dog
+281474976959015 -rwxrwxrwx 1 root root 33 Nov 22 09:03 foo
+281474976959010 -rwxrwxrwx 1 root root 15 Nov 22 09:03 test5
+281474976959011 -rwxrwxrwx 1 root root 15 Nov 22 09:03 test6
+
+./dir3:
+total 0
+281474976959016 -rwxrwxrwx 1 root root 28 Nov 22 09:03 foo
+281474976959012 -rwxrwxrwx 1 root root 15 Nov 22 09:03 test7
+281474976959013 -rwxrwxrwx 1 root root 15 Nov 22 09:03 test8
+ls -li -R
+.:
+total 20
+ 281474976959039 -rwxrwxrwx 1 root root    28 Nov 22 09:06 alligator
+ 281474976959037 -rwxrwxrwx 1 root root    23 Nov 22 09:06 bird
+ 281474976959024 drwxrwxrwx 0 root root  4096 Nov 22 09:06 dir1
+ 281474976959025 drwxrwxrwx 0 root root  4096 Nov 22 09:06 dir3
+1125899907090988 -rwxrwxrwx 1 root root 19040 Nov 22 09:06 find
+ 281474976959036 -rwxrwxrwx 1 root root    23 Nov 22 09:06 foo
+ 562949953669678 -rwxrwxrwx 1 root root    15 Nov 22 09:06 test1
+ 281474976959023 -rwxrwxrwx 1 root root    15 Nov 22 09:06 test2
+
+./dir1:
+total 0
+281474976959028 drwxrwxrwx 0 root root 4096 Nov 22 09:06 dir2
+281474976959033 -rwxrwxrwx 1 root root   28 Nov 22 09:06 foo
+281474976959026 -rwxrwxrwx 1 root root   15 Nov 22 09:06 test3
+281474976959027 -rwxrwxrwx 1 root root   15 Nov 22 09:06 test4
+
+./dir1/dir2:
+total 0
+281474976959038 -rwxrwxrwx 1 root root 22 Nov 22 09:06 dog
+281474976959034 -rwxrwxrwx 1 root root 33 Nov 22 09:06 foo
+281474976959029 -rwxrwxrwx 1 root root 15 Nov 22 09:06 test5
+281474976959030 -rwxrwxrwx 1 root root 15 Nov 22 09:06 test6
+
+./dir3:
+total 0
+281474976959035 -rwxrwxrwx 1 root root 28 Nov 22 09:06 foo
+281474976959031 -rwxrwxrwx 1 root root 15 Nov 22 09:06 test7
+281474976959032 -rwxrwxrwx 1 root root 15 Nov 22 09:06 test8

@@ -48,6 +48,10 @@ echo ./find -inum 000
 ./find -inum 000
 echo
 
+echo ./find dir1/dir2 -name foo -delete
+./find dir1/dir2 -name foo -delete
+echo
+
 echo ./find -name alligator -exec cat
 ./find -name alligator -exec cat
 echo
